@@ -1,3 +1,6 @@
+import json
+import datetime
+import time
 from builtins import range
 from builtins import object
 import logging
@@ -216,9 +219,14 @@ class DeviceThread(threading.Thread):
                     battery = device.read_battery()
                     heating_element = device.read_heating_elements()
                     #utils.publish(temperature, battery, heating_element, self.mqtt_client, self.topic, device.name)
-                    logging.debug("Published temp: {} and battery: {} to topic {}/{}".format(temperature, battery, self.topic, device.name))
+                    date = datetime.datetime.now().strftime("%y-%m-%d")
+                    file = open('./logs/' + date + '.dat', 'a')
+                    file.write(str(int(time.time())) + '|' + json.dumps(temperature) + '|' + json.dumps(battery) + "\n")
+                    file.close()
+
+                    #logging.debug("Published temp: {} and battery: {} to topic {}/{}".format(temperature, battery, self.topic, device.name))
                     logging.debug("Sleeping for {} seconds".format(self.interval))
-                    time.sleep(self.interval)
+                    time.sleep(5)
             except Exception as e:
                 logging.debug(e)
                 logging.debug("Sleeping for {} seconds before retrying".format(self.interval))
